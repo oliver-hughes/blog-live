@@ -1,11 +1,22 @@
 ---
 title: World Wide Web Winners
-published: false
+published: true
 categories: [resources]
 tags: [resources]
 date: 2021-11-12
 ---
 
+# Resources & Inspiration
+
+This list is a culmination of my absolute favourite resources and inspiring
+posts and stories across the internet. 
+These are all things that I find myself coming back to every few months, some
+are inspiring, some motivating, some frankly have just taken three or four tries
+to actually understand what's happening..
+
+All the links here are to resources that remind me of why I love programming and
+all the quirks and challenges that come along with it. Hopefully some of them
+can do that for you too. 
 
 ## Fast Inverse Square Root
 
@@ -150,5 +161,55 @@ bottom with logic gates, all the way to functional breadboard computers and ASM.
   - [Youtube Playlist](https://youtube.com/playlist?list=PLowKtXNTBypFbtuVMUVXNR0z1mu7dp7eH)
 
 
-## 
- 
+## Code Golf StackExchange
+Programming challenges with the winner decided by the fewest number of bytes in
+the source code. A celebration of language quirks, specialised languages, arguably useless
+optimisation.
+
+- [Code Golf](https://codegolf.stackexchange.com/)
+
+### [Fizz Buzz](https://codegolf.stackexchange.com/questions/58615/1-2-fizz-4-buzz)
+Code Golf thread for the classic Fizz Buzz programming exercise, great examples
+of some of the fun and crazy solutions across various languages.
+
+It's full of impressive ingenuity, solving useless problems. 
+Here are some of my favourite answers across the site:
+
+- [Fizz Buzz in Hexagony](https://codegolf.stackexchange.com/a/74906):
+```
+      3 } 1 " $ .
+     ! $ > ) } g 4
+    _ . { $ ' ) ) \
+   < $ \ . \ . @ \ }
+  F \ $ / ; z ; u ; <
+ % < _ > _ . . $ > B /
+  < > } ) ) ' % < > {
+   > ; e " - < / _ %
+    ; \ / { } / > .
+     \ ; . z ; i ;
+      . . > ( ( '
+```
+- [Fizz Buzz in Python 2](https://codegolf.stackexchange.com/a/58623):
+An weirdly genius solution in a more common language: 
+```python
+# Python 2, 56 bytes
+i=0;exec"print i%3/2*'Fizz'+i%5/4*'Buzz'or-~i;i+=1;"*100
+```
+### High Throughput Fizz Buzz
+- [High Throughput Fizz Buzz](https://codegolf.stackexchange.com/a/236630):
+Whilst arguably not so much in the spirit of code-golf, outputting fizz buzz at
+over 54 GiB/s is a masterpiece. 
+
+
+
+## Object Detection from 9FPS to 650 FPS in 6 Steps
+
+A great read on pushing Python-based object detection pipeline to the limit. 
+Even more impressive is the two follow on articles, pushing all the way to
+2530 FPS.
+- [Object detection from 9FPS to 650 FPS in 6 Steps](https://paulbridger.com/posts/video-analytics-pipeline-tuning/)
+- [Object detection at 1840 FPS](https://paulbridger.com/posts/video-analytics-deepstream-pipeline/)
+- [Object detection at 2530
+FPS](https://paulbridger.com/posts/tensorrt-object-detection-quantized/)
+
+
