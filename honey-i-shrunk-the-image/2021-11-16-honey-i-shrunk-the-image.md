@@ -1,6 +1,6 @@
 ---
-title: Honey, I Shrunk the Docker Image!
-published: true
+title: Honey, I Shrunk the Image! (Hunting a Tiny Docker Image)
+published: false
 categories: [docker]
 tags: [docker]
 date: 2021-11-16
@@ -9,7 +9,7 @@ date: 2021-11-16
 # Hunting For The Smallest Possible Docker Image
 
 I came across this challenge reading through an [engineering blog](https://idbs-engineering.com/) 
-from a company I had originally applied to do do a placement at during my degree. 
+from a company I had originally applied to do a placement at during my degree. 
 (Unfortunately our good friend covid-19 cancelled that).
 
 ## [Container Competition](https://idbs-engineering.com/docker/containers/2021/01/28/container-competition.html)
@@ -133,12 +133,15 @@ bunch of utilities that we don't need..
 ### scratch
 
 > 0 BYTES
+
+
 The 'SCRATCH' docker base image contains nothing. It contains 0 dependencies, 0
 utilities, and is exactly what we're looking for. By removing all of the
 overhead, all we need to do now is make an executable, copy it to the image, and
 BAM we have a tiny hello world image.
 
 ## c
+The first thought was a simple c program. compile into executable. bam smallish
 
 ### gcc
 
