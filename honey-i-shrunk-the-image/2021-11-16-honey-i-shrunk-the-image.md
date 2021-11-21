@@ -10,7 +10,6 @@ date: 2021-11-16
 
 I came across this challenge reading through an [engineering blog](https://idbs-engineering.com/) 
 from a company I had originally applied to do a placement at during my degree. 
-(Unfortunately our good friend covid-19 cancelled that).
 
 ## [Container Competition](https://idbs-engineering.com/docker/containers/2021/01/28/container-competition.html)
 
@@ -47,8 +46,8 @@ REPOSITORY     SIZE
 hello-world    13.3kB
 ```
 
-So our score to beat is 13.3kB, surprisingly small actually, so the alternative
-baseline would be:
+So our score to beat is 13.3kB, smaller than I was expecting (or hoping), this
+may take some work to beat. The alternative baseline is an ubuntu base image: 
 
 ### ubuntu
 
@@ -71,8 +70,9 @@ hello-world    13.3kB
 
 ## Smaller base image options
 
-The base ubuntu image is pretty gigantic, so what happens when you look for a
-smaller base image to run?
+The base ubuntu image is pretty gigantic, the actual Hello World is negligible
+in size compared to the overhead of the ubuntu base. So what other options are
+there for base images to use?
 
 ### [alpine](https://hub.docker.com/_/alpine)
 
@@ -127,7 +127,8 @@ ubuntu-hello    72.8MB
 hello-world     13.3kB
 ```
 
-An improvement! Just over 1MB is not bad, although the image still contains a
+An improvement! But still an order of magnitude larger than the hello-world example
+image. Just over 1MB is not bad, although the image still contains a
 bunch of utilities that we don't need..
 
 ### scratch
@@ -137,17 +138,124 @@ bunch of utilities that we don't need..
 
 The 'SCRATCH' docker base image contains nothing. It contains 0 dependencies, 0
 utilities, and is exactly what we're looking for. By removing all of the
-overhead, all we need to do now is make an executable, copy it to the image, and
-BAM we have a tiny hello world image.
+overhead, the minimum size is now just the smallest self contained executable we
+can build. 
 
 ## c
-The first thought was a simple c program. compile into executable. bam smallish
+My first thought here was to start with a simple c program. 
 
 ### gcc
 
+As a baseline, I started with the classic printf hello world.
+
+```c
+// hellogcc.c
+#include <stdio.h>
+int main()
+{
+    printf("Hello World\n");
+    return 0;
+}
+```
+
+And then compile with gcc:
+
+```shell
+gcc hellogcc.c -static -o hello1
+```
+
+Compiling with gcc, (and the -static flag to include dependencies), results in a
+massive 892KB executable. Luckily we can quickly shrink this with some compiler
+flags.
+
+```shell
+gcc hellogcc.c -Os -s -static -o hello2
+```
+
+Telling the compiler to optimise for size using "-Os", and "-s" to remove linker
+table info from the executable. This results in a 793KB executable, better - but
+still not good enough.
+
+
+A bit more searching around brought me to [this stackoverflow answer](https://stackoverflow.com/a/33630488)
+Which outlines how even though nothing from the c libraries is used in the
+actual program, the C runtime (CRT) startfiles that call the main function do
+call on some libraries.
+
+The solution to this is to specify startfiles, then choose to not include them
+in compilation.
+
+The new code:
+'''c
+#include <unistd.h>
+void _start(void) {
+  write(1, "Hello world!", 12);
+  _exit(0);
+}
+'''
+
+'''shell
+gcc hello_write.c -s -static --nostartfiles -o hello3
+'''
+
+File sizes so far:
+'''shell
+❯ ls -lh | awk '{print $9 " : " $5}'
+ : 
+hello1 : 869K
+hello2 : 793K
+hello3 : 8.9K
+'''
+
+
+This reduces the executable size down to just 8.9KB, which is finally smaller
+than the example hello-world docker image. But I think we can still go smaller..
+
 ### tcc
 
+[Tiny C Compiler](https://bellard.org/tcc/) (TCC) is a tiny but hyper fast C
+compiler. Luckily for us, it also generally creates much smaller executables.
+
+'''c
+int main() {
+  write(1, "Hello World\n", 12);
+  return 0;
+}
+'''
+Compile with tcc:
+'''shell
+tcc hello.c -o hellotcc
+'''
+'''
+ls -lh | awk '{print $9 " : " $5}'
+hello.c : 136
+hellotcc : 3.0K
+'''
+
+Down to just 3KB just by swapping compiler, not bad!
+
+
+*Results so far:*
+
+'''shell
+❯ docker images --format "table {{.Repository}}\t{{.Size}}"
+REPOSITORY      SIZE
+tcc-hello       2.99kB
+gcc-hello       9.06kB
+busybox-hello   1.24MB
+alpine-hello    5.61MB
+ubuntu-hello    72.8MB
+
+hello-world     13.3kB
+
+'''
+
+
 ## asm
+
+The next logical step to try and go smaller than compiled c is to just write
+straight assembly. Now, whilst I have some experience with assembly - the
+majority of that is for GameBoy or N64 
 
 ## cheating
 
