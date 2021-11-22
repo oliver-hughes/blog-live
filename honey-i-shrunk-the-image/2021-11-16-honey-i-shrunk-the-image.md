@@ -370,17 +370,17 @@ itself) or the smallest possible Docker web server etc.
 
 
 # Resources
-https://idbs-engineering.com/docker/containers/2021/01/28/container-competition.html
+<https://idbs-engineering.com/docker/containers/2021/01/28/container-competition.html>
 
-http://www.muppetlabs.com/~breadbox/software/tiny/teensy.html
+<http://www.muppetlabs.com/~breadbox/software/tiny/teensy.html>
 
-http://timelessname.com/elfbin/
+<http://timelessname.com/elfbin/>
 
-https://registry.hub.docker.com/_/busybox/
+<https://registry.hub.docker.com/_/busybox/>
 
-https://devopsdirective.com/posts/2021/04/tiny-container-image/
+<https://devopsdirective.com/posts/2021/04/tiny-container-image/>
 
-https://codegolf.stackexchange.com/a/55479
+<https://codegolf.stackexchange.com/a/55479>
 
-https://docs.docker.com/engine/reference/commandline/run/
+<https://docs.docker.com/engine/reference/commandline/run/>
 
