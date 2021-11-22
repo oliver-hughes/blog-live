@@ -8,8 +8,14 @@ date: 2021-11-16
 
 # Hunting For The Smallest Possible Docker Image
 
-I came across this challenge reading through an [engineering blog](https://idbs-engineering.com/) 
-from a company I had originally applied to do a placement at during my degree. 
+I came across the challenge of creating the smallest possible "Hello world"
+docker image from this [engineering blog](https://idbs-engineering.com/). 
+
+
+_(Almost did a placement year there, thanks Covid)_
+
+<!-- I came across this challenge reading through an [engineering blog](https://idbs-engineering.com/)  -->
+<!-- from a company I had originally applied to do a placement at during my degree.  -->
 
 ## [Container Competition](https://idbs-engineering.com/docker/containers/2021/01/28/container-competition.html)
 
@@ -97,7 +103,7 @@ ubuntu-hello   72.8MB
 hello-world    13.3kB
 ```
 
-Down to 6.51MB is definitely an improvement on the ubuntu base, but alpine is
+Down to 5.61MB is definitely an improvement on the ubuntu base, but alpine is
 based on an image of busybox, and contains some 'optional' extras we don't need.
 So how small is a plain busybox version?
 
@@ -141,7 +147,7 @@ utilities, and is exactly what we're looking for. By removing all of the
 overhead, the minimum size is now just the smallest self contained executable we
 can build. 
 
-## c
+# c
 My first thought here was to start with a simple c program. 
 
 ### gcc
@@ -251,7 +257,7 @@ hello-world     13.3kB
 ```
 
 
-## asm
+# Assembly
 
 The next logical step to try and go smaller than compiled c is to just write
 straight assembly. Now, whilst I have some experience with ASM - the majority
@@ -292,7 +298,7 @@ ubuntu-hello    72.8MB
 hello-world     13.3kB
 ```
 
-## Cheating
+# Cheating
 
 Unless I can break some laws of physics, it seems like 62 Bytes is the smallest
 possible size for a Docker image with an executable in it.
@@ -341,8 +347,10 @@ hello, world
 
 Is this cheating? Yes. The original competition did specify that it should be
 able to be published to a Docker registry. I did try for a while to link to the
-host machine's `/bin/` to grab `echo` from there, however grabbing dependencies
-from the host machine is quite literally the antithesis of the role of Docker..
+host machine's `/bin/` to grab `echo` from there, which would make it somewhat 
+portable. However grabbing dependencies from the host machine is quite literally
+the antithesis of the role of Docker, so even if figured it out, writing it down
+seemed a little blasphemous. 
 
 # Conclusion
 
@@ -357,7 +365,7 @@ Once you get to zero Docker overhead, there's only so far you can go.
 
 
 It was an absolute blast for an afternoon - and I'd love to come back and try a
-slightly modified challenge: perhaps a Docker quine (image that recreates
+slightly modified challenge: perhaps a Docker quine (an image that recreates
 itself) or the smallest possible Docker web server etc.
 
 
