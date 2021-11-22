@@ -186,26 +186,26 @@ The solution to this is to specify startfiles, then choose to not include them
 in compilation.
 
 The new code:
-'''c
+```c
 #include <unistd.h>
 void _start(void) {
   write(1, "Hello world!", 12);
   _exit(0);
 }
-'''
+```
 
-'''shell
+```shell
 gcc hello_write.c -s -static --nostartfiles -o hello3
-'''
+```
 
 File sizes so far:
-'''shell
+```shell
 ❯ ls -lh | awk '{print $9 " : " $5}'
  : 
 hello1 : 869K
 hello2 : 793K
 hello3 : 8.9K
-'''
+```
 
 
 This reduces the executable size down to just 8.9KB, which is finally smaller
@@ -216,28 +216,28 @@ than the example hello-world docker image. But I think we can still go smaller..
 [Tiny C Compiler](https://bellard.org/tcc/) (TCC) is a tiny but hyper fast C
 compiler. Luckily for us, it also generally creates much smaller executables.
 
-'''c
+```c
 int main() {
   write(1, "Hello World\n", 12);
   return 0;
 }
-'''
+```
 Compile with tcc:
-'''shell
+```shell
 tcc hello.c -o hellotcc
-'''
-'''
+```
+```
 ls -lh | awk '{print $9 " : " $5}'
 hello.c : 136
 hellotcc : 3.0K
-'''
+```
 
 Down to just 3KB just by swapping compiler, not bad!
 
 
 *Results so far:*
 
-'''shell
+```shell
 ❯ docker images --format "table {{.Repository}}\t{{.Size}}"
 REPOSITORY      SIZE
 tcc-hello       2.99kB
@@ -248,32 +248,131 @@ ubuntu-hello    72.8MB
 
 hello-world     13.3kB
 
-'''
+```
 
 
 ## asm
 
 The next logical step to try and go smaller than compiled c is to just write
-straight assembly. Now, whilst I have some experience with assembly - the
-majority of that is for GameBoy or N64 
+straight assembly. Now, whilst I have some experience with ASM - the majority
+of that is for GameBoy or N64. Whilst I could sit down and learn my way around,
+this challenge was meant to be about Docker - so why reinvent the wheel when I
+can just Google it..
 
-## cheating
+My first thought was to check the [code golf](codegolf.stackexchange.com/)
+stackexchange for a solution. I found one [here](https://codegolf.stackexchange.com/a/55479),
+however right after that I found what is arguably the holy grail:
+
+### [ELF Executable Magic](http://www.muppetlabs.com/~breadbox/software/tiny)
+
+In an example of pure wizardry by Brian Raiter, an ELF executable "Hello, World"
+program in just 62 Bytes. 
+
+Every ELF executable has a 52 Byte header, containing data on: if it's 32/64
+bit, little or big-endian, the target architecture etc. By placing the
+instructions to write "hello, world" in the header, (and some other tricks
+absolutely violating every inch of the ELF file standard), he produces a 62 Byte
+executable.
+
+So a simple Dockerfile that just copies this executable to the image:
+
+```Docker
+FROM scratch
+COPY hello hello
+CMD ["/hello"]
+````
+```shell
+REPOSITORY      SIZE
+asm-hello       62B
+tcc-hello       2.99kB
+gcc-hello       9.06kB
+busybox-hello   1.24MB
+alpine-hello    5.61MB
+ubuntu-hello    72.8MB
+hello-world     13.3kB
+```
+
+## Cheating
+
+Unless I can break some laws of physics, it seems like 62 Bytes is the smallest
+possible size for a Docker image with an executable in it.
+
+But can we cheat by not having to include an executable at all?
+
+Yes.. _kind of_
+
+
+```Docker
+FROM scratch
+CMD ["dir/hello"]
+```
+```shell
+❯ docker build . -t cheat-hello
+```
+
+This docker image simply runs an executable called 'hello' in the folder 'dir'.
+This folder and executable don't exist when the image is created, so it gives an
+error if ran normally, but this does mean that the actual Docker image is
+exactly 0 Bytes.
+
+```shell
+REPOSITORY         SIZE
+cheat-hello        0B
+asm-hello          62B
+tcc-hello          2.99kB
+gcc-hello          9.06kB
+busybox-hello      1.24MB
+alpine-hello       5.61MB
+ubuntu-hello       72.8MB
+hello-world        13.3kB
+
+```
+
+The image is ran using a directory on the host machine linked as a volume in the
+container. If the directory linked contains an executable called 'hello', then
+the container will run the executable and output "hello world".
+
+
+```shell
+❯ docker run -v ~/path/to/folder/containg/executable/:/dir cheat-hello
+hello, world
+```
+
+
+Is this cheating? Yes. The original competition did specify that it should be
+able to be published to a Docker registry. I did try for a while to link to the
+host machine's `/bin/` to grab `echo` from there, however grabbing dependencies
+from the host machine is quite literally the antithesis of the role of Docker..
 
 # Conclusion
+
+Whilst the challenge quite quickly strayed away from Docker, learning to
+dismantle and violate it's principles has been a great learning experience. As
+has diving into the ELF file format and some c compiler options.
+
+
+Having now read the rest of the original challenge post - we both ended up at
+the same final answer. (Theirs is slightly longer only due to a longer message).
+Once you get to zero Docker overhead, there's only so far you can go. 
+
+
+It was an absolute blast for an afternoon - and I'd love to come back and try a
+slightly modified challenge: perhaps a Docker quine (image that recreates
+itself) or the smallest possible Docker web server etc.
 
 
 # Resources
 https://idbs-engineering.com/docker/containers/2021/01/28/container-competition.html
-inspo - held of reading the second half until i'd had aproper go
 
 http://www.muppetlabs.com/~breadbox/software/tiny/teensy.html
-smallest executable hello world
+
+http://timelessname.com/elfbin/
 
 https://registry.hub.docker.com/_/busybox/
-busybox embedded based image
 
 https://devopsdirective.com/posts/2021/04/tiny-container-image/
-6kb containerized http server,
 
 https://codegolf.stackexchange.com/a/55479
-codegolf hello world
+
+https://docs.docker.com/engine/reference/commandline/run/
+
