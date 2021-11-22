@@ -1,6 +1,6 @@
 ---
 title: Honey, I Shrunk the Image! (Hunting a Tiny Docker Image)
-published: false
+published: true
 categories: [docker]
 tags: [docker]
 date: 2021-11-16
